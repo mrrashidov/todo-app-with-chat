@@ -1,0 +1,44 @@
+version: '3.7'
+services:
+  postgres:
+    env_file: .env
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${DB_NAME:-postgres}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - '5432:5432'
+    networks:
+      - nest-api
+    restart: unless-stopped
+  redis:
+    env_file: .env
+    container_name: redis
+    image: redis:latest
+    command:
+      - /bin/sh
+      - -c
+      # - Double dollars, so that the variable is not expanded by Docker Compose
+      # - Surround by quotes, so that the shell does not split the password
+      # - The ${variable:?message} syntax causes shell to exit with a non-zero
+      #   code and print a message, when the variable is not set or empty
+      - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
+    environment:
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_USER=${REDIS_USER:-default}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
+    ports:
+      - 6379:${REDIS_PORT:-6379}
+    networks:
+      - nest-api
+
+networks:
+  nest-api:
+    name: nest-api
+    driver: bridge
+volumes:
+  postgres:
