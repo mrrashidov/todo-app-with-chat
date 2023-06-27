@@ -1,7 +1,6 @@
 import { HttpStatus, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { WsAdapter } from '@nestjs/platform-ws';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -13,7 +12,6 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   app.use(cookieParser());
-  app.useWebSocketAdapter(new WsAdapter(app));
   app.use(compression());
   app.use(
     helmet({
@@ -38,6 +36,7 @@ async function bootstrap() {
   });
   app.enableCors(corsOptions);
   await app.listen(configService.get<number>('PORT'));
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
 bootstrap();

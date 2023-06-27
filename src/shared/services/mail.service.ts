@@ -25,7 +25,7 @@ export class MailService {
     action: string;
   }) {
     const transporter = await createTransport({
-      host: this.configService.get('MAIL_HOST') || 'smtp.kibera.uz',
+      host: this.configService.get('MAIL_HOST'),
       port: this.configService.get('MAIL_PORT') || 587,
       secure: this.configService.get('MAIL_ENCRYPTION') || false, // true for 465, false for other ports
       auth: {
