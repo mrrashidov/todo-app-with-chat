@@ -7,7 +7,7 @@ import { CreateTodoDto } from '@/modules/todos/dto/create-todo.dto';
 import { CreateChatDto } from '@/modules/chats/dto/create-chat.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 @Injectable()
 export class WsService {
@@ -43,19 +43,35 @@ export class WsService {
       });
   }
 
-  newTodoCategory(payload: CreateTodoCategoryDto) {
-    this.logger.log(payload);
+  async newTodoCategory(server: Server, payload: CreateTodoCategoryDto) {
+    try {
+      const newCategory = await this.todoCategoriesRepository.create(payload);
+      server.emit('receiveTodoCategory', newCategory);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
-  newTodo(payload: CreateTodoDto) {
-    this.logger.log(payload);
+  async newTodo(server: Server, payload: CreateTodoDto) {
+    try {
+      const newTodo = await this.todoRepository.create(payload);
+      server.emit('receiveTodo', newTodo);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
-  newMessage(payload: CreateChatDto) {
-    this.logger.log(payload);
+  async newMessage(server: Server, payload: CreateChatDto) {
+    try {
+      const newMessage = await this.chatRepository.create(payload);
+      server.emit('receiveMessage', newMessage);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
-  typing(typing: boolean) {
+  typing(server: Server, typing: boolean) {
     this.logger.log(typing);
+    server.emit('receiveMessage', typing);
   }
 }

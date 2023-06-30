@@ -35,25 +35,21 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('newTodoCategory')
   newTodoCategory(@MessageBody() payload: CreateTodoCategoryDto) {
-    this.service.newTodoCategory(payload);
-    this.server.emit('receiveTodoCategory', payload);
+    this.service.newTodoCategory(this.server, payload);
   }
 
   @SubscribeMessage('newTodo')
   newTodo(@MessageBody() payload: CreateTodoDto) {
-    this.service.newTodo(payload);
-    this.server.emit('receiveTodo', payload);
+    this.service.newTodo(this.server, payload);
   }
 
   @SubscribeMessage('newMessage')
   newMessage(@MessageBody() payload: CreateChatDto) {
-    this.service.newMessage(payload);
-    this.server.emit('receiveMessage', payload);
+    this.service.newMessage(this.server, payload);
   }
 
   @SubscribeMessage('typing')
   typing(@MessageBody('isTyping') isTyping: boolean) {
-    this.service.typing(isTyping);
-    this.server.emit('receiveMessage', isTyping);
+    this.service.typing(this.server, isTyping);
   }
 }
