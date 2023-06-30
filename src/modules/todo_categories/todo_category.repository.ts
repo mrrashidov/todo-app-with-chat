@@ -13,7 +13,7 @@ export class TodoCategoryRepository
   constructor(@InjectKnex() private readonly knex: Knex) {}
 
   private get query(): KnexInterface.QueryBuilder {
-    return this.knex<TodoCategory>('todo_category');
+    return this.knex<TodoCategory>('todo_categories');
   }
 
   async create(dto: Create<TodoCategory>): Promise<TodoCategory> {

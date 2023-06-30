@@ -6,6 +6,7 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { corsOptions } from './shared/options/cors.options';
+import { WSValidationPipe } from '@/shared/filters/ws-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,6 +29,10 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+    }),
+    new WSValidationPipe({
+      whitelist: true,
+      transform: true,
     }),
   );
   app.enableVersioning({

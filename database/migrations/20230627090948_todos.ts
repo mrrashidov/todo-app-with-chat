@@ -10,7 +10,7 @@ export async function up(knex: Knex): Promise<void> {
       .references('todo_categories.id')
       .defaultTo(1);
     table.string('title', 150).notNullable();
-    table.string('description', 250).notNullable();
+    table.string('description', 250).nullable();
     table.tinyint('priority', 1).defaultTo(0);
     table.tinyint('status', 1).defaultTo(1);
     table.timestamp('created_at').defaultTo(knex.fn.now());

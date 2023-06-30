@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { TodoCategoryRepository } from '@/modules/todo_categories/todo_category.repository';
 import { TodoRepository } from '@/modules/todos/todo.repository';
 import { ChatRepository } from '@/modules/chats/chat.repository';
@@ -25,22 +25,25 @@ export class WsService {
     client.disconnect();
   }
 
-  handleConnection(client: Socket, args: any) {
-    this.logger.log(args);
-    this.jwt
-      .verify(client.handshake.headers.authorization, {
-        secret: this.config.get('JWT_SECRET'),
-        ignoreExpiration: false,
-      })
-      .then((res) => (client['user'] = res.user))
-      .catch((error) => {
-        this.logger.error(error);
-        client.disconnect();
-        return error;
-      })
-      .finally(() => {
-        this.logger.log(`Client Connected: ${client.id}`);
-      });
+  handleConnection(server: Server, client: Socket, args: any) {
+    this.logger.log(client);
+    return client.id;
+    // this.jwt
+    //   .verify(client.handshake.headers.authorization, {
+    //     secret: this.config.get('JWT_SECRET'),
+    //     ignoreExpiration: false,
+    //   })
+    //   .then((res) => (client['user'] = res.user))
+    //   .catch((error) => {
+    //     this.disconnect(client);
+    //     console.log('xa shu yerda xatolik', error);
+    //     //  throw new WsException(error);
+    //     // this.logger.error(error);
+    //     // client.disconnect();
+    //   })
+    //   .finally(() => {
+    //     this.logger.log(`Client Connected: ${client.id}`);
+    //   });
   }
 
   async newTodoCategory(server: Server, payload: CreateTodoCategoryDto) {
@@ -73,5 +76,10 @@ export class WsService {
   typing(server: Server, typing: boolean) {
     this.logger.log(typing);
     server.emit('receiveMessage', typing);
+  }
+
+  private disconnect(socket: Socket) {
+    socket.emit('Error', new UnauthorizedException());
+    socket.disconnect();
   }
 }
