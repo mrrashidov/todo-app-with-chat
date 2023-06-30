@@ -28,7 +28,7 @@ export class ChatRepository implements BaseRepositoryInterface<Chat> {
     return this.query.select('*');
   }
 
-  first(where: Chat): Promise<Chat> {
+  first(where: KnexInterface.Where<Chat, Chat>): Promise<Chat> {
     return this.query.where(where).first();
   }
 

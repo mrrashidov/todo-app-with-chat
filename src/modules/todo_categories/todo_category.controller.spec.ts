@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TodoCategoriesController } from './todo_categories.controller';
+import { TodoCategoriesController } from './todo_category.controller';
 
 describe('TodoCategoriesController', () => {
   let controller: TodoCategoriesController;

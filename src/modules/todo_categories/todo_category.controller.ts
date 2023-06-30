@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { TodoCategoriesService } from '@/modules/todo_categories/todo_categories.service';
+import { TodoCategoriesService } from '@/modules/todo_categories/todo_category.service';
 import { MessageBody } from '@nestjs/websockets';
 import { CreateTodoCategoryDto } from '@/modules/todo_categories/dto/create-todo_category.dto';
 import { UpdateTodoCategoryDto } from '@/modules/todo_categories/dto/update-todo_category.dto';
