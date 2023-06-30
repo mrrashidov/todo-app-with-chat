@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TodoCategoriesService } from './todo_categories.service';
-import { TodoCategoriesGateway } from './todo_categories.gateway';
+import { TodoCategoriesController } from './todo_categories.controller';
 
 @Module({
-  providers: [TodoCategoriesGateway, TodoCategoriesService]
+  providers: [TodoCategoriesService],
+  controllers: [TodoCategoriesController],
 })
 export class TodoCategoriesModule {}

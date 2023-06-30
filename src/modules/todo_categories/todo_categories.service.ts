@@ -1,58 +1,75 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateTodoCategoryDto } from './dto/create-todo_category.dto';
 import { UpdateTodoCategoryDto } from './dto/update-todo_category.dto';
-import { InjectKnex, Knex } from 'nestjs-knex';
+import { TodoCategoryRepository } from '@/modules/todo_categories/todo_category.repository';
+import { TodoCategory } from '@/modules/todo_categories/entities/todo_category.entity';
 
 @Injectable()
 export class TodoCategoriesService {
-  constructor(@InjectKnex() private readonly knex: Knex) {}
+  private logger = new Logger(TodoCategoriesService.name);
 
-  async create(createTodoCategoryDto: CreateTodoCategoryDto) {
-    const hastItem = await this.baseQuery({
-      title: createTodoCategoryDto.name,
-    }).first();
-    if (hastItem) {
-      throw new UnprocessableEntityException(
-        'This todo category already exists',
+  constructor(private readonly repository: TodoCategoryRepository) {}
+
+  async create(
+    createTodoCategoryDto: CreateTodoCategoryDto,
+  ): Promise<TodoCategory | Error> {
+    try {
+      const hastItem = await this.repository.first((qb) =>
+        qb.where({ name: createTodoCategoryDto.name }),
       );
+      if (hastItem) {
+        return Promise.reject(
+          new UnprocessableEntityException('This todo category already exists'),
+        );
+      }
+      return this.repository.create(createTodoCategoryDto);
+    } catch (e) {
+      this.logger.error(e);
     }
-    return this.knex('todo_categories')
-      .insert(createTodoCategoryDto)
-      .returning('*');
   }
 
-  findAll() {
-    return this.knex('todo_categories').whereNot({
-      status: 0,
-    });
+  findAll(query?: any): Promise<TodoCategory[]> {
+    try {
+      return this.repository.find(query);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
   findOne(id: number) {
-    return this.baseQuery({ id }).first();
+    try {
+      return this.repository.findById(id);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
   async update(id: number, updateTodoCategoryDto: UpdateTodoCategoryDto) {
-    const hasItem = this.baseQuery({ id }).clone().first();
-    if (!hasItem) {
-      throw new NotFoundException('Todo not found');
+    try {
+      const hasItem = await this.findOne(id);
+      if (!hasItem) {
+        return Promise.reject(new NotFoundException('Todo not found'));
+      }
+      return this.repository.update(id, updateTodoCategoryDto);
+    } catch (e) {
+      this.logger.error(e);
     }
-    return this.baseQuery({ id }).update(updateTodoCategoryDto).returning('*');
   }
 
-  remove(id: number) {
-    const hasItem = this.baseQuery({ id }).clone().first();
-    if (!hasItem) {
-      throw new NotFoundException('Todo not found');
+  async remove(id: number): Promise<TodoCategory> {
+    try {
+      const hasItem = await this.findOne(id);
+      if (!hasItem) {
+        return Promise.reject(new NotFoundException('Todo not found'));
+      }
+      return this.repository.delete(id);
+    } catch (e) {
+      this.logger.error(e);
     }
-
-    return this.baseQuery({ id }).update({ status: 0 }).returning('*');
-  }
-
-  private baseQuery(where: { [key: string]: any }) {
-    return this.knex('todo_categories').where(where);
   }
 }
