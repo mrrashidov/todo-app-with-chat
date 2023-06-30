@@ -1,4 +1,4 @@
-export default interface ChatEntity {
+export default interface Chat {
   id: number;
   sender_id: number;
   receiver_id: number;

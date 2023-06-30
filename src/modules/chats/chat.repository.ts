@@ -1,43 +1,43 @@
 import { InjectKnex, Knex } from 'nestjs-knex';
-import ChatEntity from '@/modules/chats/entity/chat.entity';
+import Chat from '@/modules/chats/entities/chat.entity';
 import BaseRepositoryInterface, {
   Create,
   Update,
 } from '~/global/base-repository.interface';
 import { CursorInterface } from '~/global/pagination.interface';
 
-export class ChatRepository implements BaseRepositoryInterface<ChatEntity> {
+export class ChatRepository implements BaseRepositoryInterface<Chat> {
   constructor(@InjectKnex() private readonly knex: Knex) {}
 
   private get chats() {
-    return this.knex<ChatEntity>('chats');
+    return this.knex<Chat>('chats');
   }
 
-  async create(dto: Create<ChatEntity>): Promise<ChatEntity> {
+  async create(dto: Create<Chat>): Promise<Chat> {
     const result = await this.chats.insert(dto).returning('*');
 
     return result[0];
   }
 
-  findById(id: number): Promise<ChatEntity> {
+  findById(id: number): Promise<Chat> {
     return this.chats.where({ id }).first();
   }
 
-  find(filter?: CursorInterface): Promise<ChatEntity[]> {
+  find(filter?: CursorInterface): Promise<Chat[]> {
     return this.chats.select('*');
   }
 
-  first(where: ChatEntity): Promise<ChatEntity> {
+  first(where: Chat): Promise<Chat> {
     return this.chats.where(where).first();
   }
 
-  async update(id: number, dto: Update<ChatEntity>): Promise<ChatEntity> {
+  async update(id: number, dto: Update<Chat>): Promise<Chat> {
     const result = await this.chats.where({ id }).update(dto).returning('*');
 
     return result[0];
   }
 
-  delete(id: number): Promise<ChatEntity> {
+  delete(id: number): Promise<Chat> {
     return this.chats.where({ id }).del();
   }
 }

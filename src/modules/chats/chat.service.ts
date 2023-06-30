@@ -17,7 +17,7 @@ export class ChatService {
     }
   }
 
-  findAll(query: any) {
+  findAll(query?: any) {
     try {
       return this.repository.find(query);
     } catch (e) {
