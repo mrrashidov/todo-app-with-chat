@@ -1,5 +1,4 @@
 import {
-  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -8,13 +7,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { WsService } from './ws.service';
-import { CreateWDto } from './dto/create-w.dto';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
 import { CreateTodoCategoryDto } from '@/modules/todo_categories/dto/create-todo_category.dto';
 import { CreateTodoDto } from '@/modules/todos/dto/create-todo.dto';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { CreateChatDto } from '@/modules/chats/dto/create-chat.dto';
 
 @WebSocketGateway({
   namespace: 'ws',
@@ -26,57 +22,38 @@ import { JwtService } from '@nestjs/jwt';
 export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
-  private readonly logger = new Logger(WsGateway.name);
 
-  constructor(
-    private readonly wsService: WsService,
-    private readonly jwt: JwtService,
-    private readonly config: ConfigService,
-  ) {}
+  constructor(private readonly service: WsService) {}
 
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client Disconnected: ${client.id}`);
-    client.disconnect();
+    this.service.handleDisconnect(client);
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
-    this.logger.log(args);
-    this.jwt
-      .verify(client.handshake.headers.authorization, {
-        secret: this.config.get('JWT_SECRET'),
-        ignoreExpiration: false,
-      })
-      .then((res) => (client['user'] = res.user))
-      .catch((error) => {
-        this.logger.error(error);
-        client.disconnect();
-        return error;
-      })
-      .finally(() => {
-        this.logger.log(`Client Connected: ${client.id}`);
-      });
+    this.service.handleConnection(client, args);
   }
 
   @SubscribeMessage('newTodoCategory')
   newTodoCategory(@MessageBody() payload: CreateTodoCategoryDto) {
+    this.service.newTodoCategory(payload);
     this.server.emit('receiveTodoCategory', payload);
   }
 
   @SubscribeMessage('newTodo')
   newTodo(@MessageBody() payload: CreateTodoDto) {
+    this.service.newTodo(payload);
     this.server.emit('receiveTodo', payload);
   }
 
   @SubscribeMessage('newMessage')
-  newMessage(@MessageBody() createWDto: CreateWDto) {
-    this.server.emit('receiveMessage', createWDto);
+  newMessage(@MessageBody() payload: CreateChatDto) {
+    this.service.newMessage(payload);
+    this.server.emit('receiveMessage', payload);
   }
 
   @SubscribeMessage('typing')
-  typing(
-    @MessageBody('isTyping') isTyping: boolean,
-    @ConnectedSocket() client: Socket,
-  ) {
-    this.logger.log({ isTyping, id: client.id });
+  typing(@MessageBody('isTyping') isTyping: boolean) {
+    this.service.typing(isTyping);
+    this.server.emit('receiveMessage', isTyping);
   }
 }
