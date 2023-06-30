@@ -1,18 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateWDto } from './dto/create-w.dto';
 import { UpdateWDto } from './dto/update-w.dto';
-import { TodoService } from '@/modules/todos/todo.service';
-import { TodoCategoriesService } from '@/modules/todo_categories/todo_category.service';
-import { ChatService } from '@/modules/chats/chat.service';
+import { TodoCategoryRepository } from '@/modules/todo_categories/todo_category.repository';
+import { TodoRepository } from '@/modules/todos/todo.repository';
+import { ChatRepository } from '@/modules/chats/chat.repository';
 
 @Injectable()
 export class WsService {
   private logger = new Logger(WsService.name);
 
   constructor(
-    private readonly todoCategoriesService: TodoCategoriesService,
-    private readonly todoService: TodoService,
-    private readonly chatService: ChatService,
+    private readonly todoCategoriesRepository: TodoCategoryRepository,
+    private readonly todoRepository: TodoRepository,
+    private readonly chatRepository: ChatRepository,
   ) {}
 
   create(createWDto: CreateWDto) {
