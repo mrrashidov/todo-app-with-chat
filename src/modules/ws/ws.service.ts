@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { TodoCategoryRepository } from '@/modules/todo_categories/todo_category.repository';
 import { TodoRepository } from '@/modules/todos/todo.repository';
 import { ChatRepository } from '@/modules/chats/chat.repository';
@@ -8,6 +8,7 @@ import { CreateChatDto } from '@/modules/chats/dto/create-chat.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
+import { MESSAGE, TODO, TODO_CATEGORY } from '@/modules/ws/ws.constants';
 
 @Injectable()
 export class WsService {
@@ -26,7 +27,7 @@ export class WsService {
   }
 
   handleConnection(server: Server, client: Socket, args: any) {
-    this.logger.log(client);
+    this.logger.log(args);
     return client.id;
     // this.jwt
     //   .verify(client.handshake.headers.authorization, {
@@ -49,7 +50,7 @@ export class WsService {
   async newTodoCategory(server: Server, payload: CreateTodoCategoryDto) {
     try {
       const newCategory = await this.todoCategoriesRepository.create(payload);
-      server.emit('receiveTodoCategory', newCategory);
+      server.emit(TODO_CATEGORY.RECEIVE, newCategory);
     } catch (e) {
       this.logger.error(e);
     }
@@ -58,7 +59,7 @@ export class WsService {
   async newTodo(server: Server, payload: CreateTodoDto) {
     try {
       const newTodo = await this.todoRepository.create(payload);
-      server.emit('receiveTodo', newTodo);
+      server.emit(TODO.RECEIVE, newTodo);
     } catch (e) {
       this.logger.error(e);
     }
@@ -67,7 +68,7 @@ export class WsService {
   async newMessage(server: Server, payload: CreateChatDto) {
     try {
       const newMessage = await this.chatRepository.create(payload);
-      server.emit('receiveMessage', newMessage);
+      server.emit(MESSAGE.RECEIVE, newMessage);
     } catch (e) {
       this.logger.error(e);
     }
@@ -75,11 +76,6 @@ export class WsService {
 
   typing(server: Server, typing: boolean) {
     this.logger.log(typing);
-    server.emit('receiveMessage', typing);
-  }
-
-  private disconnect(socket: Socket) {
-    socket.emit('Error', new UnauthorizedException());
-    socket.disconnect();
+    server.emit(MESSAGE.TYPING, typing);
   }
 }

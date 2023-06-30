@@ -13,6 +13,7 @@ import { CreateTodoCategoryDto } from '@/modules/todo_categories/dto/create-todo
 import { CreateTodoDto } from '@/modules/todos/dto/create-todo.dto';
 import { CreateChatDto } from '@/modules/chats/dto/create-chat.dto';
 import { UsePipes, ValidationError, ValidationPipe } from '@nestjs/common';
+import { MESSAGE, TODO, TODO_CATEGORY } from '@/modules/ws/ws.constants';
 
 @WebSocketGateway({
   cors: {
@@ -40,22 +41,22 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       },
     }),
   )
-  @SubscribeMessage('newTodoCategory')
+  @SubscribeMessage(TODO_CATEGORY.NEW)
   newTodoCategory(@MessageBody() payload: CreateTodoCategoryDto) {
     return this.service.newTodoCategory(this.server, payload);
   }
 
-  @SubscribeMessage('newTodo')
+  @SubscribeMessage(TODO.NEW)
   newTodo(@MessageBody() payload: CreateTodoDto) {
     return this.service.newTodo(this.server, payload);
   }
 
-  @SubscribeMessage('newMessage')
+  @SubscribeMessage(MESSAGE.NEW)
   newMessage(@MessageBody() payload: CreateChatDto) {
     return this.service.newMessage(this.server, payload);
   }
 
-  @SubscribeMessage('typing')
+  @SubscribeMessage(MESSAGE.TYPING)
   typing(@MessageBody('isTyping') isTyping: boolean) {
     return this.service.typing(this.server, isTyping);
   }
