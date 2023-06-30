@@ -1,7 +1,7 @@
 export enum StatusType {
-  PENDING = 'pending',
-  ACTIVE = 'active',
-  PASSIVE = 'passive',
-  BLOCK = 'block',
-  DELETED = 'deleted',
+  DELETED,
+  ACTIVE,
+  PASSIVE,
+  PENDING,
+  BLOCK,
 }

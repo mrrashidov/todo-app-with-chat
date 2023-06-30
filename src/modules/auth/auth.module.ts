@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthJwtStrategy } from './strategy/jwt.strategy';
-import { UsersService } from '@/modules/users/users.service';
+import { UserService } from '@/modules/users/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from '@/shared/services/mail.service';
 import { BullModule } from '@nestjs/bull';
+import { UserRepository } from '@/modules/users/user.repository';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { BullModule } from '@nestjs/bull';
     AuthService,
     AuthJwtStrategy,
     JwtService,
-    UsersService,
+    UserService,
+    UserRepository,
     MailService,
   ],
 })

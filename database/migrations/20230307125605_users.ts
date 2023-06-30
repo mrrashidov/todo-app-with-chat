@@ -12,9 +12,7 @@ export async function up(knex: Knex): Promise<void> {
     table.string('last_name', 15).notNullable();
     table.string('token').nullable();
     table.date('birthday').nullable();
-    table
-      .enum('status', ['active', 'passive', 'pending', 'block', 'deleted'])
-      .defaultTo('pending');
+    table.tinyint('status', 1).defaultTo(1);
     table.timestamp('created_at').defaultTo(knex.fn.now());
   });
 }

@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { TwoFactorUserDto } from './dto/two-factor-user.dto';
@@ -16,8 +16,8 @@ import { ChangePasswordUserDto } from './dto/change-password-user.dto';
 import { IsPublic } from '@/shared/decorators/is-public.decorator';
 
 @Controller('users')
-export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+export class UserController {
+  constructor(private readonly usersService: UserService) {}
 
   @Post('two-factor-authentication')
   twoFactor(@Body() payload: TwoFactorUserDto) {

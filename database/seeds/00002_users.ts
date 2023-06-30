@@ -9,7 +9,6 @@ const users = [
     last_name: 'Doe',
     password: '$2b$10$Uw2FZgGhsrWKBOK9MhiY4Op2MDZxMZVb.Af74EQ09IY7LuIhp6apO',
     birthday: new Date('1999-08-08'),
-    status: 'active',
   },
   {
     avatar: 'https://i.pravatar.cc/150?img=28',
