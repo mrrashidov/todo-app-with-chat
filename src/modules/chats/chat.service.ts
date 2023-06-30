@@ -1,37 +1,52 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
-import { InjectKnex, Knex } from 'nestjs-knex';
+import { ChatRepository } from '@/modules/chats/chat.repository';
 
 @Injectable()
 export class ChatService {
-  constructor(@InjectKnex() private readonly knex: Knex) {}
+  private logger = new Logger(ChatService.name);
+
+  constructor(private readonly repository: ChatRepository) {}
 
   async create(createChatDto: CreateChatDto) {
-    return this.knex('chats').insert(createChatDto).returning('*');
+    try {
+      return this.repository.create(createChatDto);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
-  findAll() {
-    return this.knex('chats').whereNot({
-      status: 0,
-    });
+  findAll(query: any) {
+    try {
+      return this.repository.find(query);
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
+  findOne(id: number) {
+    try {
+      return this.repository.findById(id);
+    } catch (e) {
+      this.logger.error(e);
+    }
   }
 
   async update(id: number, updateChatDto: UpdateChatDto) {
-    const hasItem = this.baseQuery({ id }).clone().first();
+    const hasItem = await this.findOne(id);
     if (!hasItem) {
       throw new NotFoundException('Message not found');
     }
-    return this.baseQuery({ id }).update(updateChatDto).returning('*');
+    return this.repository.update(id, updateChatDto);
   }
 
-  remove(id: number) {
-    const hasItem = this.baseQuery({ id }).clone().first();
+  async remove(id: number) {
+    const hasItem = await this.findOne(id);
     if (!hasItem) {
       throw new NotFoundException('Message not found');
     }
-
-    return this.baseQuery({ id }).update({ status: 0 }).returning('*');
+    return this.repository.delete(id);
   }
 
   identify(name: string, socketId: string) {
@@ -42,9 +57,5 @@ export class ChatService {
   typing(isTyping: boolean, socketId: string) {
     console.log('typing', { isTyping, socketId });
     return 'Typing';
-  }
-
-  private baseQuery(where: { [key: string]: any }) {
-    return this.knex('chats').where(where);
   }
 }
